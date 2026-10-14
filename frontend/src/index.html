@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Dynamic Fullstack Web Application with FastAPI, PostgreSQL, Redis and Docker verification workflow">
+    <title>AuthFlow | Dynamic FastAPI, Redis & PostgreSQL Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="background-mesh"></div>
+
+    <!-- Header & Navigation -->
+    <header class="app-header">
+        <div class="header-container">
+            <div class="brand">
+                <div class="brand-logo">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                    </svg>
+                </div>
+                <div class="brand-text">
+                    <span class="brand-title">AuthFlow</span>
+                    <span class="brand-badge">Docker Edition</span>
+                </div>
+            </div>
+
+            <!-- Real-time Connectivity Status Indicators -->
+            <div class="system-indicators">
+                <div class="status-chip" id="chip-db" title="PostgreSQL Database Status">
+                    <span class="dot dot-pulse"></span>
+                    <span class="chip-label">PostgreSQL: <strong id="status-db-text">Checking...</strong></span>
+                </div>
+                <div class="status-chip" id="chip-redis" title="Redis Cache Status">
+                    <span class="dot dot-pulse"></span>
+                    <span class="chip-label">Redis: <strong id="status-redis-text">Checking...</strong></span>
+                </div>
+                <button id="dev-inbox-btn" class="btn-inbox" title="View Simulated Dev Mailbox">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                        <polyline points="22,6 12,13 2,6"></polyline>
+                    </svg>
+                    <span>Dev Inbox</span>
+                    <span class="inbox-count" id="inbox-badge">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="main-content">
+        <!-- Notification Banner -->
+        <div id="toast-container" class="toast-container"></div>
+
+        <div class="content-wrapper">
+            <!-- App Hero Overview -->
+            <section class="hero-section">
+                <h1 class="hero-title">Secure Registration with <span class="gradient-text">Redis & PostgreSQL</span></h1>
+                <p class="hero-subtitle">
+                    FastAPI handles temporary registration in <strong>Redis</strong>, dispatches email verification, and commits verified credentials into <strong>PostgreSQL</strong>.
+                </p>
+                <div class="workflow-steps">
+                    <div class="workflow-step active" id="wf-step-1">
+                        <span class="step-num">1</span>
+                        <span class="step-text">Register Form</span>
+                    </div>
+                    <div class="workflow-arrow">→</div>
+                    <div class="workflow-step" id="wf-step-2">
+                        <span class="step-num">2</span>
+                        <span class="step-text">Redis Temporary Store</span>
+                    </div>
+                    <div class="workflow-arrow">→</div>
+                    <div class="workflow-step" id="wf-step-3">
+                        <span class="step-num">3</span>
+                        <span class="step-text">Email Verification</span>
+                    </div>
+                    <div class="workflow-arrow">→</div>
+                    <div class="workflow-step" id="wf-step-4">
+                        <span class="step-num">4</span>
+                        <span class="step-text">Postgres Activation</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Authentication Card -->
+            <div class="card glass-card auth-card">
+                <!-- Navigation Tabs -->
+                <div class="tab-nav" id="tab-nav-bar">
+                    <button class="tab-btn active" id="tab-btn-register" data-target="tab-register">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+                        <span>Register</span>
+                    </button>
+                    <button class="tab-btn" id="tab-btn-verify" data-target="tab-verify">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                        <span>Verify Email</span>
+                    </button>
+                    <button class="tab-btn" id="tab-btn-login" data-target="tab-login">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
+                        <span>Login</span>
+                    </button>
+                    <button class="tab-btn" id="tab-btn-dashboard" data-target="tab-dashboard" style="display: none;">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                        <span>Dashboard</span>
+                    </button>
+                </div>
+
+                <!-- Tab 1: Register -->
+                <div class="tab-content active" id="tab-register">
+                    <form id="register-form" class="form-grid">
+                        <div class="form-group">
+                            <label for="reg-name" class="form-label">Full Name</label>
+                            <input type="text" id="reg-name" class="form-input" placeholder="e.g. Alex Morgan" required autocomplete="name">
+                        </div>
+                        <div class="form-group">
+                            <label for="reg-email" class="form-label">Email Address</label>
+                            <input type="email" id="reg-email" class="form-input" placeholder="alex@example.com" required autocomplete="email">
+                            <span class="field-hint">A verification link will be sent to this address</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="reg-password" class="form-label">Password</label>
+                            <input type="password" id="reg-password" class="form-input" placeholder="Minimum 6 characters" required autocomplete="new-password">
+                        </div>
+                        <button type="submit" id="btn-submit-register" class="btn btn-primary btn-block">
+                            <span class="btn-text">Create Account & Send Verification</span>
+                            <span class="spinner" style="display: none;"></span>
+                        </button>
+                    </form>
+
+                    <!-- Registration Results Notice -->
+                    <div id="reg-result-box" class="info-banner" style="display: none;">
+                        <div class="info-header">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#10b981" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+                            <strong>Pending Registration in Redis!</strong>
+                        </div>
+                        <p id="reg-result-msg" class="info-desc"></p>
+                        <div class="token-display">
+                            <span class="token-label">Verification Link:</span>
+                            <a href="#" id="reg-quick-verify-link" class="token-link">Click here to verify</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Verify Email -->
+                <div class="tab-content" id="tab-verify">
+                    <div class="verify-instructions">
+                        <div class="icon-circle">
+                            <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                <polyline points="22,6 12,13 2,6"></polyline>
+                            </svg>
+                        </div>
+                        <h3>Confirm Email Verification</h3>
+                        <p>Enter the verification token received in your email or auto-loaded from your verification link.</p>
+                    </div>
+
+                    <form id="verify-form" class="form-grid">
+                        <div class="form-group">
+                            <label for="verify-token-input" class="form-label">Verification Token</label>
+                            <textarea id="verify-token-input" class="form-input token-input" rows="2" placeholder="Paste your verification token here..." required></textarea>
+                            <span class="field-hint">Redis will check this token, save your details into PostgreSQL, and activate your account.</span>
+                        </div>
+                        <button type="submit" id="btn-submit-verify" class="btn btn-accent btn-block">
+                            <span class="btn-text">Verify & Activate Account</span>
+                            <span class="spinner" style="display: none;"></span>
+                        </button>
+                    </form>
+
+                    <div id="verify-success-box" class="success-banner" style="display: none;">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#10b981" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                        <div>
+                            <h4>Account Successfully Activated!</h4>
+                            <p id="verify-success-desc">Your credentials have been securely stored in PostgreSQL.</p>
+                            <button id="btn-go-to-login" class="btn btn-sm btn-primary">Proceed to Login</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 3: Login -->
+                <div class="tab-content" id="tab-login">
+                    <form id="login-form" class="form-grid">
+                        <div class="form-group">
+                            <label for="login-email" class="form-label">Email Address</label>
+                            <input type="email" id="login-email" class="form-input" placeholder="alex@example.com" required autocomplete="username">
+                        </div>
+                        <div class="form-group">
+                            <label for="login-password" class="form-label">Password</label>
+                            <input type="password" id="login-password" class="form-input" placeholder="Your password" required autocomplete="current-password">
+                            <span class="field-hint">Note: Only accounts with verified emails can log in.</span>
+                        </div>
+                        <button type="submit" id="btn-submit-login" class="btn btn-primary btn-block">
+                            <span class="btn-text">Log In</span>
+                            <span class="spinner" style="display: none;"></span>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Tab 4: User Dashboard (Authenticated State) -->
+                <div class="tab-content" id="tab-dashboard">
+                    <div class="dashboard-header">
+                        <div class="user-avatar" id="dash-avatar">U</div>
+                        <div class="user-meta">
+                            <h2 id="dash-user-name">Welcome Back</h2>
+                            <p id="dash-user-email" class="user-email-text"></p>
+                            <span class="verified-tag">✓ Verified in PostgreSQL</span>
+                        </div>
+                        <button id="btn-logout" class="btn btn-outline btn-sm">Log Out</button>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <span class="stat-label">User ID</span>
+                            <span class="stat-value" id="dash-user-id">-</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-label">Verified At</span>
+                            <span class="stat-value" id="dash-verified-at">-</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-label">PostgreSQL Users</span>
+                            <span class="stat-value" id="dash-pg-users">-</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-label">Redis Pending Tokens</span>
+                            <span class="stat-value" id="dash-redis-pending">-</span>
+                        </div>
+                    </div>
+
+                    <div class="session-box">
+                        <div class="session-header">
+                            <span>Live JWT Session</span>
+                            <button id="btn-refresh-profile" class="btn btn-xs btn-outline">Refresh Me</button>
+                        </div>
+                        <pre id="jwt-preview" class="code-preview"></pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Architecture Proof Cards -->
+            <section class="architecture-grid">
+                <div class="arch-card">
+                    <div class="arch-icon redis-accent">
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    </div>
+                    <h3>Redis Temporary Cache</h3>
+                    <p>Holds pending user data and cryptographically random tokens with 15-minute TTL. Auto-expires if not verified.</p>
+                </div>
+                <div class="arch-card">
+                    <div class="arch-icon postgres-accent">
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
+                    </div>
+                    <h3>PostgreSQL Storage</h3>
+                    <p>Only verified users are stored in the database with securely salted bcrypt passwords.</p>
+                </div>
+                <div class="arch-card">
+                    <div class="arch-icon docker-accent">
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
+                    </div>
+                    <h3>Docker Compose Stack</h3>
+                    <p>All 4 microservices (Frontend Nginx, FastAPI Backend, PostgreSQL 16, Redis 7) communicate seamlessly over an isolated bridge network.</p>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Simulated Dev Mailbox Drawer Modal -->
+    <div id="dev-modal" class="modal-backdrop" style="display: none;">
+        <div class="modal-content glass-card">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                    <span>Simulated Email Mailbox (Redis)</span>
+                </div>
+                <button id="close-modal-btn" class="btn-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-desc">
+                    All dispatched verification emails are captured here in real-time from Redis for fast local testing.
+                </p>
+                <div id="mailbox-list" class="mailbox-list">
+                    <div class="empty-mailbox">No emails dispatched yet. Register an account to see it appear here!</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btn-refresh-emails" class="btn btn-sm btn-outline">Refresh Emails</button>
+                <button id="btn-close-modal" class="btn btn-sm btn-secondary">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
